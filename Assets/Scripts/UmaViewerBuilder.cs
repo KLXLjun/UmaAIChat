@@ -39,6 +39,8 @@ public class UmaViewerBuilder : MonoBehaviour
 
     public GameObject LiveControllerPrefab;
 
+    public event Action<CharaEntry> OnNormalUmaModelLoadComplete;
+
     private void Awake()
     {
         Instance = this;
@@ -69,6 +71,7 @@ public class UmaViewerBuilder : MonoBehaviour
         {
             umaContainer.CharaData = UmaDatabaseController.ReadCharaData(chara);
             LoadNormalUma(umaContainer, chara, costumeId, true);
+            OnNormalUmaModelLoadComplete?.Invoke(chara);
         }
 
         yield break;

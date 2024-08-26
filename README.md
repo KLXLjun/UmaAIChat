@@ -1,6 +1,13 @@
-# Uma Viewer (2)
+UmaAIChat
+---
+
+[中文文档在此](https://github.com/KLXLjun/UmaAIChat/blob/master/README-zh.md)
+
+This project is based on [UmaViewer](https://github.com/katboi01/UmaViewer). Thanks to the developers of [UmaViewer](https://github.com/katboi01/UmaViewer)!
 
 Unity application that makes it easy to view assets from Uma Musume: Pretty Derby.
+
+Furthermore, you can engage in dialogue with the Umamusume. The features available and planned for development in this application are detailed in the to-do list at the bottom.
 
 ### Requirements/Installation
 - For Users:
@@ -27,7 +34,7 @@ Unity application that makes it easy to view assets from Uma Musume: Pretty Derb
 1. Open the Assets/Scenes/Version2 scene.
    - note: If there are errors in the console, [JSON .NET For Unity](https://assetstore.unity.com/packages/tools/input-management/json-net-for-unity-11347) may be required
 
-### Features
+### To-do list
 
 ||||
 | ------------ | ------------ | ------------ |
@@ -35,41 +42,9 @@ Unity application that makes it easy to view assets from Uma Musume: Pretty Derb
 
 |||
 | ------------ | ------------ |
-| Viewing main character models/animations | ✓  |
-| Swapping costumes/animations between characters | ✓  |
-| Viewing chibi models/animations | ✓  |
-| Viewing mob (NPC) models | ✓ |
-| Playing facial animations, custom sliders | ✓  |
-| Cloth/Hair physics | ✓  |
-| Playing Live Audio with Lyrics | ✓  |
-| Exporting animations to MMD | ✓  |
-| Recording animations (.gif), screenshots | ✓  |
-| Viewing Props, Scenery, Live scenes | /  |
-| Exporting models | /  |
-
-
-All characters and animations are supported
-
-<img src="https://user-images.githubusercontent.com/59540382/222418271-a6e4ce82-b3a5-47ba-9fc9-4d85120218ec.png" height="350" />
-
-Mobs / background characters as well
-
-<img src="https://user-images.githubusercontent.com/32562737/219174232-7d0a0eec-8b1c-4571-9c08-8474e06dd3a8.png" height="350" />
-
-Mixing outfits and animations
-
-<img src="https://user-images.githubusercontent.com/59540382/222420757-609e1f77-d762-4b39-a7d0-d1fb2d3b79a3.png" height="350" />
-
-Screenshot and .gif recording
-
-<img src="https://user-images.githubusercontent.com/59540382/222421579-582be5db-5839-4f7c-bf1b-80efc812c4e0.gif" height="350" />
-
-and more
-
-<img src="https://user-images.githubusercontent.com/59540382/222422871-12e80e0b-778b-4f42-b581-5e4af5cd6df9.png" height="350" />
-
-### Also check out:
-[UmaChat by kagari](https://github.com/kagari-bi/UmaChat) - model viewer fork that lets you chat with Umas using AI + TTS
-
-### Special Thank to:
-MarshmallowAndroid: [UmaMusumeExplorer](https://github.com/MarshmallowAndroid/UmaMusumeExplorer) for acb/awb decoder.
+| Support for additional Umamusume. | /  |
+| Recognize emotions based on questions and answers and change the Umamusume actions and expressions (customizable actions and expressions) | ✓  |
+| Customizable prompt | / |
+| Tutorial on customizing actions and expressions | x |
+| Better interface layout and interaction | x |
+| Can be used as a computer desktop pet | x |

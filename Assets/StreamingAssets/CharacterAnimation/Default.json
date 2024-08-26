@@ -1,0 +1,167 @@
+[
+    {
+        "Key": "思考",
+        "PlayType": 0,
+        "PlayAnim": [
+            "anm_eve_type00_think01_loop"
+        ],
+        "Motion": [
+            {
+                "Name": "EyeHalfA",
+                "Weight": 0.6
+            }
+        ],
+        "Morph": []
+    },
+    {
+        "Key": "打招呼",
+        "PlayType": 0,
+        "Wink": false,
+        "PlayAnim": [
+            "anm_eve_type00_hello04_loop"
+        ],
+        "Motion": [
+            {
+                "Name": "WaraiC",
+                "Weight": 1.0
+            }
+        ],
+        "Morph": []
+    },
+    {
+        "Key": "提出建议",
+        "PlayType": 0,
+        "PlayAnim": [
+            "anm_eve_type00_advice01_loop",
+            "anm_eve_type00_advice02_loop",
+            "anm_eve_type00_advice03_loop",
+            "anm_eve_type00_advice04_loop",
+            "anm_eve_type00_advice05_loop"
+        ],
+        "Motion": [
+            {
+                "Name": "WaraiB",
+                "Weight": 1.0
+            }
+        ],
+        "Morph": []
+    },
+    {
+        "Key": "鼓励",
+        "PlayType": 0,
+        "PlayAnim": [
+            "anm_eve_type00_clap01_loop",
+            "anm_eve_type00_clap03_loop"
+        ],
+        "Motion": [
+            {
+                "Name": "WaraiC",
+                "Weight": 1.0
+            }
+        ],
+        "Morph": []
+    },
+    {
+        "Key": "难过",
+        "PlayType": 0,
+        "PlayAnim": [
+            "anm_eve_type00_cry04_loop"
+        ],
+        "Motion": [
+            {
+                "Name": "EyeClose",
+                "Weight": 1.0
+            },
+            {
+                "Name": "KanasiA",
+                "Weight": 1.0
+            }
+        ],
+        "Morph": []
+    },
+    {
+        "Key": "做的好",
+        "PlayType": 0,
+        "PlayAnim": [
+            "anm_eve_type00_good01_loop"
+        ],
+        "Motion": [
+            {
+                "Name": "WaraiC",
+                "Weight": 1.0
+            }
+        ],
+        "Morph": []
+    },
+    {
+        "Key": "高兴",
+        "PlayType": 0,
+        "PlayAnim": [
+            "anm_eve_type00_happy01_loop"
+        ],
+        "Motion": [
+            {
+                "Name": "WaraiC",
+                "Weight": 1.0
+            }
+        ],
+        "Morph": []
+    },
+    {
+        "Key": "大笑",
+        "PlayType": 0,
+        "PlayAnim": [
+            "anm_eve_type00_laugh01_loop",
+            "anm_eve_type00_laugh02_loop"
+        ],
+        "Motion": [
+            {
+                "Name": "WaraiD",
+                "Weight": 1.0
+            }
+        ],
+        "Morph": []
+    },
+    {
+        "Key": "拒绝",
+        "PlayType": 0,
+        "PlayAnim": [
+            "anm_eve_type00_ng01_loop"
+        ],
+        "Motion": [
+            {
+                "Name": "KomariC",
+                "Weight": 1.0
+            }
+        ],
+        "Morph": []
+    },
+    {
+        "Key": "请求",
+        "PlayType": 0,
+        "PlayAnim": [
+            "anm_eve_type00_request01_loop"
+        ],
+        "Motion": [
+            {
+                "Name": "KusyoBL",
+                "Weight": 1.0
+            }
+        ],
+        "Morph": []
+    },
+    {
+        "Key": "给予",
+        "PlayType": 0,
+        "PlayAnim": [
+            "anm_eve_type00_send01_loop"
+        ],
+        "Motion": [
+            {
+                "Name": "WaraiB",
+                "Weight": 1.0
+            }
+        ],
+        "Morph": []
+    }
+]
