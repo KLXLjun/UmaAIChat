@@ -2,6 +2,7 @@
     {
         "Key": "思考",
         "PlayType": 0,
+        "Wink": false,
         "PlayAnim": [
             "anm_eve_type00_think01_loop"
         ],

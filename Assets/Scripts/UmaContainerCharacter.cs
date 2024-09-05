@@ -374,7 +374,10 @@ public class UmaContainerCharacter : UmaContainer
                     PuppetMaster.muscleWeight = 1;
                 }
                 //LookAt Camera
-                TrackTarget.position = Vector3.Lerp(TrackTarget.position, cam.transform.position, Time.fixedDeltaTime * 3);
+                if (!cam.orthographic)
+                {
+                    TrackTarget.position = Vector3.Lerp(TrackTarget.position, cam.transform.position, Time.fixedDeltaTime * 3);
+                }
                 if (dragCollider && dragCollider.attachedRigidbody) dragCollider.attachedRigidbody.isKinematic = false;
                 dragCollider = null;
             }

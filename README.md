@@ -5,6 +5,8 @@ UmaAIChat
 
 This project is based on [UmaViewer](https://github.com/katboi01/UmaViewer). Thanks to the developers of [UmaViewer](https://github.com/katboi01/UmaViewer)!
 
+Additional libraries used: [UniWindowController](https://github.com/kirurobo/UniWindowController), [UnityWav](https://github.com/deadlyfingers/UnityWav). Thanks to their developers!
+
 Unity application that makes it easy to view assets from Uma Musume: Pretty Derby.
 
 Furthermore, you can engage in dialogue with the Umamusume. The features available and planned for development in this application are detailed in the to-do list at the bottom.
@@ -21,6 +23,7 @@ Furthermore, you can engage in dialogue with the Umamusume. The features availab
        - 2A\\...
        - 2B\\...
        - ...\\...
+1. Download my other repository [UmaAIChatServer](https://github.com/KLXLjun/UmaAIChatServer) and configure it according to the usage instructions in the  readme.
 1. Download the most recent UmaViewer.zip file from [Releases](https://github.com/katboi01/UmaViewer/releases/) tab.
 1. Extract the archive anywhere, can be extracted over previous version.
 1. Run the UmaViewer.exe
@@ -29,6 +32,7 @@ Furthermore, you can engage in dialogue with the Umamusume. The features availab
 
 - For Developers/Contributors
 1. [Unity Hub](https://unity3d.com/get-unity/download) with [Unity Engine Version 2020.3.24f1](unityhub://2020.3.28f1/f5400f52e03f) is recommended. It should be possible to run it on newer 2020.3.X versions.
+1. Download my other repository [UmaAIChatServer](https://github.com/KLXLjun/UmaAIChatServer) and configure it according to the usage instructions in the  readme.
 1. Clone or download and extract this repository.
 1. Import and Open the project in Unity Hub, missing files should be automatically repaired.
 1. Open the Assets/Scenes/Version2 scene.
@@ -45,6 +49,6 @@ Furthermore, you can engage in dialogue with the Umamusume. The features availab
 | Support for additional Umamusume. | /  |
 | Recognize emotions based on questions and answers and change the Umamusume actions and expressions (customizable actions and expressions) | ✓  |
 | Customizable prompt | / |
-| Tutorial on customizing actions and expressions | x |
+| Tutorial on customizing actions and expressions | / |
 | Better interface layout and interaction | x |
-| Can be used as a computer desktop pet | x |
+| Can be used as a computer desktop pet | / |

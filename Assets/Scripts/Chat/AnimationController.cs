@@ -12,6 +12,7 @@ public class AnimationController : MonoBehaviour
     private static UmaViewerMain Main => UmaViewerMain.Instance;
     private static UmaAssetManager UmaAssetManager => UmaAssetManager.instance;
     private static CharacterInfo CharacterInfo => CharacterInfo.Instance;
+    private static Utils Utils => Utils.Instance;
 
     private bool RequestStatus = false;
 
@@ -62,7 +63,7 @@ public class AnimationController : MonoBehaviour
         }
         if (Builder.CurrentUMAContainer == null)
         {
-            Debug.LogError("No character has been loaded!");
+            Utils.PushAlertWindow($"No character has been loaded!\n没有加载任何角色！");
             return;
         }
 
@@ -86,12 +87,18 @@ public class AnimationController : MonoBehaviour
         defaultIdle = AnimName;
     }
 
+    public bool HasAction(string ActionName)
+    {
+        return Actions.FirstOrDefault(item => item.Key == ActionName) != null;
+    }
+
     public void ChangeAction(string ActionName)
     {
         var act = Actions.FirstOrDefault(item => item.Key == ActionName);
         if (act == null)
         {
             Debug.LogWarning($"未找到 {ActionName} 动作");
+            Utils.PushAlertWindow($"A animation file named '{ActionName}' could not be found.\n名称为 '{ActionName}' 的动画文件未找到。");
             return;
         }
         Debug.Log($"切换动作 {ActionName}");
@@ -106,7 +113,7 @@ public class AnimationController : MonoBehaviour
     {
         if (Builder.CurrentUMAContainer == null)
         {
-            Debug.LogError("No character has been loaded!");
+            Utils.PushAlertWindow($"No character has been loaded!\n没有加载任何角色！");
             return;
         }
 
@@ -114,6 +121,7 @@ public class AnimationController : MonoBehaviour
         if (montion == null)
         {
             Debug.LogError($"A resource file named '{AnimName}' could not be found.");
+            Utils.PushAlertWindow($"A resource file named '{AnimName}' could not be found.\n名称为 '{AnimName}' 的资源文件未找到。");
             return;
         }
         Debug.Log($"切换动作 {AnimName}");

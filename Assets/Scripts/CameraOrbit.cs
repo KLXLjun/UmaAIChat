@@ -55,6 +55,8 @@ public class CameraOrbit : MonoBehaviour
     {
         if (HandleManager.InteractionInProgress) return;
 
+        if (Camera.main.orthographic) return;
+
         if(CameraMode != CameraModeDropdown.value)
         {
             switch (CameraMode) //old

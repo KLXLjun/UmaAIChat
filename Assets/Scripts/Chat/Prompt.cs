@@ -7,6 +7,7 @@ using UnityEngine;
 public class Prompt : MonoBehaviour
 {
     public static Prompt Instance;
+    private static Utils Utils => Utils.Instance;
 
     static string CharacterAnimationDir = System.IO.Path.Combine(Application.streamingAssetsPath, "Prompt");
 
@@ -38,8 +39,16 @@ public class Prompt : MonoBehaviour
         if (prompt == null)
         {
             Debug.LogWarning($"没有找到人物 {CharaID} 的提示词!");
+            Utils.PushAlertWindow($"No prompt found for character {CharaID}!\n没有找到人物 {CharaID} 的提示词!");
             return string.Empty;
         }
         return prompt;
+    }
+
+    public void SetPrompt(string  CharaID, string prompt)
+    {
+        var path = Path.Combine(CharacterAnimationDir, $"{CharaID}.txt");
+        CharacterPrompt[CharaID] = prompt;
+        File.WriteAllText(path, prompt);
     }
 }
