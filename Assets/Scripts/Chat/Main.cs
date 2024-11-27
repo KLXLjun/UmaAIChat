@@ -3,17 +3,17 @@ using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
-using System.Threading.Tasks;
-using static UnityEngine.Rendering.VirtualTexturing.Procedural;
-using System.Windows.Forms;
-using UnityEngine.XR;
 
 public class Main : MonoBehaviour
 {
     public TMP_InputField InputField;
-    public TMP_InputField RequestField;
+    public TMP_Text RequestField;
     public TMP_Dropdown Dropdown;
     public PromptWindow PromptWindowObject;
+    public AutoScroll RequestAutoScroll;
+    public Transform AnimDebugList;
+    public Transform AnimDebug;
+
     private static UmaViewerBuilder Builder => UmaViewerBuilder.Instance;
     private static AnimationController AnimationController => AnimationController.Instance;
     private static UmaViewerUI UI => UmaViewerUI.Instance;
@@ -21,6 +21,8 @@ public class Main : MonoBehaviour
     private static WebClient Client => WebClient.Instance;
     private static PromptWindow PromptWindow => PromptWindow.Instance;
     private static Utils Utils => Utils.Instance;
+    private static CharacterInfo CharacterInfo => CharacterInfo.Instance;
+    private static VoicePlayer VoicePlayer => VoicePlayer.Instance;
 
     public AudioSource audioSource;
     public static CharaEntry NowChara;
@@ -53,6 +55,43 @@ public class Main : MonoBehaviour
             }
             emotionStr += item.Key;
             i++;
+        }
+        AnimDebugListUpdate();
+
+    }
+
+    public void ReloadAnimDebugList()
+    {
+        CharacterInfo.LoadAllActions();
+        int i = 0;
+        foreach (var item in AnimationController.Actions)
+        {
+            if (i > 0)
+            {
+                emotionStr += ",";
+            }
+            emotionStr += item.Key;
+            i++;
+        }
+        AnimDebugListUpdate();
+    }
+
+    public void AnimDebugListUpdate()
+    {
+        while (AnimDebugList.childCount > 0)
+        {
+            DestroyImmediate(AnimDebugList.GetChild(0).gameObject);
+        }
+
+        foreach (var item in AnimationController.Actions)
+        {
+            GameObject ui = Instantiate(Resources.Load<GameObject>("Prefabs/ChatUI/Button"), AnimDebugList);
+            var t = ui.GetComponent<UIButton>();
+            t.button.onClick.AddListener(() =>
+            {
+                AnimationController.ChangeAction(item.Key);
+            });
+            t.text.text = item.Key;
         }
     }
 
@@ -89,7 +128,7 @@ public class Main : MonoBehaviour
             var msg = json.Value<string>("Message");
             var act = json.Value<string>("Emotion");
             var translate = json.Value<string>("Translate");
-            var audioRAWData = await Client.GenerateVoice(msg);
+            VoicePlayer.PushTask(Utils.SplitStr(msg));
 
             RequestField.text = "";
 
@@ -97,15 +136,6 @@ public class Main : MonoBehaviour
             {
                 AnimationController.SetRequestStatus(false);
             }));
-
-            if (audioRAWData != null) {
-                AudioClip audioClip = WavUtility.ToAudioClip(audioRAWData);
-
-                StartCoroutine(PlayVoice(audioClip, () =>
-                {
-                    AnimationController.SetRequestStatus(false);
-                }));
-            }
 
             AnimationController.ChangeAction(act);
         }
@@ -116,16 +146,9 @@ public class Main : MonoBehaviour
         foreach (var item in content)
         {
             RequestField.text += item;
+            RequestAutoScroll.UpdateScrollView();
             yield return new WaitForSeconds(0.15f);
         }
-        complete?.Invoke();
-    }
-
-    IEnumerator PlayVoice(AudioClip audioClip, Action complete)
-    {
-        audioSource.clip = audioClip;
-        audioSource.Play();
-        yield return new WaitForSeconds(audioClip.length);
         complete?.Invoke();
     }
 
@@ -145,6 +168,15 @@ public class Main : MonoBehaviour
             PromptWindowObject.SetText(prompt.GetPrompt($"{NowChara.Id}"));
         }
         PromptWindowObject.gameObject.SetActive(!PromptWindowObject.gameObject.activeSelf);
+    }
+
+    public void ToggleDebugWindow()
+    {
+        if (AnimDebug == null)
+        {
+            return;
+        }
+        AnimDebug.gameObject.SetActive(!AnimDebug.gameObject.activeSelf);
     }
 
     public void SavePrompt()

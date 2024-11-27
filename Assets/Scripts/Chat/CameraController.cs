@@ -1,4 +1,5 @@
 using NAudio.MediaFoundation;
+using RootMotion.Dynamics;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,8 +7,10 @@ using UnityEngine.EventSystems;
 
 public class CameraController : MonoBehaviour
 {
+    public RectTransform canvas;
     public GameObject ChatBox;
     public GameObject UIObject;
+    public GameObject ResultBox;
 
     private float cameraSpeed = 0.05f;
 
@@ -21,6 +24,7 @@ public class CameraController : MonoBehaviour
     private static CameraOrbit CameraOrbit => CameraOrbit.instance;
 
     private static GameObject charaObject;
+    private static GameObject charaFace;
 
     void Start()
     {
@@ -55,6 +59,13 @@ public class CameraController : MonoBehaviour
                 if (charaObject == null)
                 {
                     charaObject = hit.collider.transform.root.gameObject;
+                    var Last = Utils.FindTransform(charaObject.transform, "Chara_");
+                    var Face = Utils.FindTransform(Last.transform, "M_Face");
+                    if (Face != null)
+                    {
+                        charaFace = Face.gameObject;
+                        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(charaFace.transform.position);
+                    }
                 }
             }
         }
@@ -69,6 +80,7 @@ public class CameraController : MonoBehaviour
 
                     ChatBox.SetActive(displayUI);
                     UIObject.SetActive(displayUI);
+                    ResultBox.SetActive(displayUI);
 
                     charaObject.transform.position = Vector3.zero;
                     Camera.main.transform.position = new Vector3(0, 1, 2.4f);
@@ -117,6 +129,7 @@ public class CameraController : MonoBehaviour
                 if (!EventSystem.current.IsPointerOverGameObject())
                 {
                     ChatBox.SetActive(!ChatBox.activeSelf);
+                    ResultBox.SetActive(ChatBox.activeSelf);
                 }
             }
 
@@ -130,7 +143,28 @@ public class CameraController : MonoBehaviour
             Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             mouseWorldPos.z = charaObject.transform.position.z;
             charaObject.transform.position = mouseWorldPos + offset;
-            
+
+            Bounds bounds = Utils.CalculateBounds(charaObject);
+
+            // 将包围盒的最小和最大点转换为屏幕坐标
+            Vector3 screenMin = Camera.main.WorldToScreenPoint(bounds.min);
+            Vector3 screenMax = Camera.main.WorldToScreenPoint(bounds.max);
+
+            // 计算宽度和高度
+            float width = Mathf.Abs(screenMax.x - screenMin.x);
+            float height = Mathf.Abs(screenMax.y - screenMin.y);
+
+            Vector3 screenPosition = Camera.main.WorldToScreenPoint(charaFace.transform.position);
+
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                canvas,
+                screenPosition,
+                Camera.current, // 用于渲染 Canvas 的相机
+                out Vector2 localPoint
+            );
+
+            localPoint.y = localPoint.y + (height * 0.5f);
+            ResultBox.transform.localPosition = localPoint;
         }
     }
 

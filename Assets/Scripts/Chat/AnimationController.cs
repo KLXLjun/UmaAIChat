@@ -1,3 +1,4 @@
+using Gallop;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -103,9 +104,10 @@ public class AnimationController : MonoBehaviour
         }
         Debug.Log($"切换动作 {ActionName}");
         winkRunning = act.Wink;
+        ClearAllWeight();
         ChangeMorph(act.Morph);
         ChangeMontion(act.Motion);
-        ChangeAnim(act.PlayAnim[0]);
+        ChangeAnim(Utils.RandomAnim(act.PlayAnim));
         ResetIdleTime();
     }
 
@@ -131,7 +133,7 @@ public class AnimationController : MonoBehaviour
 
     public void ChangeMontion(List<MotionGroup> motions)
     {
-        ResetMontion();
+        //ResetMontion();
         foreach (var emotion in Builder.CurrentUMAContainer.FaceEmotionKeyTarget.FaceEmotionKey)
         {
             if (emotion.label == "Base")
@@ -176,6 +178,15 @@ public class AnimationController : MonoBehaviour
         LastEmotion.Clear();
     }
 
+    public void ClearAllWeight()
+    {
+        if (Builder.CurrentUMAContainer == null) return;
+        Builder.ClearMorphs();
+        //Builder.CurrentUMAContainer.FaceDrivenKeyTarget.ClearAllWeights();
+        //Builder.CurrentUMAContainer.FaceEmotionKeyTarget.UpdateAllTargetWeight();
+        //Builder.CurrentUMAContainer.FaceEmotionKeyTarget.Initialize();
+    }
+
     private float waitTime = 5.0f;
     private float waitTimeMax = 5.0f;
     private bool isCloseEye = false;
@@ -192,8 +203,9 @@ public class AnimationController : MonoBehaviour
             idleTime -= Time.deltaTime;
             if (idleTime < 0)
             {
-                Builder.CurrentUMAContainer.FaceDrivenKeyTarget.ClearAllWeights();
+                ClearAllWeight();
                 ChangeAnim(defaultIdle);
+                Builder.CurrentUMAContainer.FaceDrivenKeyTarget.ChangeMorphWeight(Builder.CurrentUMAContainer.FaceDrivenKeyTarget.MouthMorphs[3], 1);
                 enterIdleMode = true;
             }
         }

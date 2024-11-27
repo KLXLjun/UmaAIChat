@@ -1,0 +1,223 @@
+[
+    {
+        "Key": "思考",
+        "PlayType": 0,
+        "Wink": false,
+        "PlayAnim": [
+            "anm_eve_type00_think06_07_loop"
+        ],
+        "Motion": [],
+        "Morph": [
+            {
+                "Name": "Mouth_1_0",
+                "Weight": 0.0
+            }
+        ]
+    },
+    {
+        "Key": "一般对话",
+        "PlayType": 0,
+        "Wink": false,
+        "PlayAnim": [
+            "anm_eve_chr1085_00_mot01_loop",
+            "anm_eve_chr1085_00_idle02_loop"
+        ],
+        "Motion": [],
+        "Morph": [
+            {
+                "Name": "Mouth_4_0",
+                "Weight": 0.6
+            }
+        ]
+    },
+    {
+        "Key": "打招呼",
+        "PlayType": 0,
+        "Wink": false,
+        "PlayAnim": [
+            "anm_eve_type00_hello09_loop"
+        ],
+        "Motion": [],
+        "Morph": [
+            {
+                "Name": "Eye_8_R",
+                "Weight": 1.0
+            },
+            {
+                "Name": "Eye_8_L",
+                "Weight": 1.0
+            },
+            {
+                "Name": "Mouth_1_0",
+                "Weight": 1.0
+            }
+        ]
+    },
+    {
+        "Key": "提出建议",
+        "PlayType": 0,
+        "Wink": false,
+        "PlayAnim": [
+            "anm_eve_type00_advice01_loop",
+            "anm_eve_type00_advice03_loop"
+        ],
+        "Motion": [],
+        "Morph": [
+            {
+                "Name": "Mouth_1_0",
+                "Weight": 1.0
+            }
+        ]
+    },
+    {
+        "Key": "鼓励",
+        "PlayType": 0,
+        "Wink": false,
+        "PlayAnim": [
+            "anm_eve_type00_clap01_loop",
+            "anm_eve_type00_clap03_loop"
+        ],
+        "Motion": [],
+        "Morph": [
+            {
+                "Name": "Eye_5_R",
+                "Weight": 1.0
+            },
+            {
+                "Name": "Eye_5_L",
+                "Weight": 1.0
+            },
+            {
+                "Name": "Mouth_4_0",
+                "Weight": 1.0
+            }
+        ]
+    },
+    {
+        "Key": "微笑",
+        "PlayType": 0,
+        "Wink": false,
+        "PlayAnim": [
+            "anm_eve_chr1011_00_mot01_01_loop"
+        ],
+        "Motion": [],
+        "Morph": [
+            {
+                "Name": "Eye_9_R",
+                "Weight": 1.0
+            },
+            {
+                "Name": "Eye_9_L",
+                "Weight": 1.0
+            },
+            {
+                "Name": "Mouth_4_0",
+                "Weight": 1.0
+            }
+        ]
+    },
+    {
+        "Key": "难过",
+        "PlayType": 0,
+        "Wink": false,
+        "PlayAnim": [
+            "anm_eve_type00_kuchiate04_loop"
+        ],
+        "Motion": [],
+        "Morph": [
+            {
+                "Name": "Eye_1_R",
+                "Weight": 0.15
+            },
+            {
+                "Name": "Eye_1_L",
+                "Weight": 0.15
+            },
+            {
+                "Name": "Eye_Brow_12_L",
+                "Weight": 0.7
+            },
+            {
+                "Name": "Eye_Brow_12_R",
+                "Weight": 0.7
+            }
+        ]
+    },
+    {
+        "Key": "拒绝",
+        "PlayType": 0,
+        "Wink": false,
+        "PlayAnim": [
+            "anm_eve_type00_ng02_loop"
+        ],
+        "Motion": [],
+        "Morph": [
+            {
+                "Name": "Eye_7_R",
+                "Weight": 1.0
+            },
+            {
+                "Name": "Eye_7_L",
+                "Weight": 1.0
+            },
+            {
+                "Name": "EyeBrow_6_R",
+                "Weight": 1.0
+            },
+            {
+                "Name": "EyeBrow_6_L",
+                "Weight": 1.0
+            },
+            {
+                "Name": "Mouth_11_0",
+                "Weight": 1.0
+            },
+            {
+                "Name": "Ear_2_R",
+                "Weight": 0.5
+            },
+            {
+                "Name": "Ear_2_L",
+                "Weight": 0.5
+            }
+        ]
+    },
+    {
+        "Key": "请求",
+        "PlayType": 0,
+        "Wink": false,
+        "PlayAnim": [
+            "anm_eve_type00_kuchiate04_loop"
+        ],
+        "Motion": [],
+        "Morph": [
+            {
+                "Name": "Mouth_1_0",
+                "Weight": 1.0
+            }
+        ]
+    },
+    {
+        "Key": "给予",
+        "PlayType": 0,
+        "Wink": false,
+        "PlayAnim": [
+            "anm_eve_type00_send04_loop"
+        ],
+        "Motion": [],
+        "Morph": [
+            {
+                "Name": "Eye_5_R",
+                "Weight": 1.0
+            },
+            {
+                "Name": "Eye_5_L",
+                "Weight": 1.0
+            },
+            {
+                "Name": "Mouth_4_0",
+                "Weight": 1.0
+            }
+        ]
+    }
+]

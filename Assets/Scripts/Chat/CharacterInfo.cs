@@ -12,11 +12,16 @@ public class CharacterInfo : MonoBehaviour
 
     public bool IsLoadOk = false;
     public List<Action> Default;
+
     public Dictionary<string, List<Action>> CharacterAction { get; private set; } = new Dictionary<string, List<Action>>();
 
     public void Start()
     {
         Instance = this;
+        LoadAllActions();
+    }
+    public void LoadAllActions()
+    {
         var tmp = System.IO.Directory.GetFiles(CharacterAnimationDir);
         foreach (var file in tmp)
         {
