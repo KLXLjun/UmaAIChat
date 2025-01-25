@@ -5,8 +5,6 @@ using UnityEngine;
 using System;
 using Newtonsoft.Json.Linq;
 using System.Collections;
-using System.Diagnostics;
-using Debug = UnityEngine.Debug;
 
 public class UmaViewerMain : MonoBehaviour
 {
@@ -33,6 +31,7 @@ public class UmaViewerMain : MonoBehaviour
         Application.targetFrameRate = 120;
 
         AbList = UmaDatabaseController.Instance.MetaEntries;
+        if (AbList == null) return;
         var chara_3d = AbList.Where(ab => ab.Value.Type == UmaFileType._3d_cutt).Select(ab => ab.Value).ToList();
         AbChara = chara_3d.FindAll(ab => ab.Name.StartsWith(UmaDatabaseController.CharaPath));
         AbMotions = chara_3d.FindAll(ab => ab.Name.StartsWith(UmaDatabaseController.MotionPath));
@@ -44,14 +43,19 @@ public class UmaViewerMain : MonoBehaviour
 
     private IEnumerator Start()
     {
+        if (AbList == null) yield break;
+        int loadingStep = 0;
+        int loadingStepsTotal = 11;
+        var UmaCharaData = UmaDatabaseController.Instance.CharaData;
+        var MobCharaData = UmaDatabaseController.Instance.MobCharaData;
+        var loadingUI = UmaSceneController.instance;
         Dictionary<int, string> enNames = new Dictionary<int, string>();
         Dictionary<int, string> mobNames = new Dictionary<int, string>();
-        var loadingUI = UmaSceneController.instance;
 
         //Main chara names (En only)
         if (Config.Instance.Language == Language.En)
         {
-            loadingUI.LoadingProgressChange(0, 11, "Downloading Character Data");
+            loadingUI.LoadingProgressChange(loadingStep++, loadingStepsTotal, "Downloading Character Data");
             yield return UmaViewerDownload.DownloadText("https://www.tracenacademy.com/api/BasicCharaDataInfo", txt =>
             {
                 if (string.IsNullOrEmpty(txt)) return;
@@ -66,7 +70,7 @@ public class UmaViewerMain : MonoBehaviour
         }
 
         //Mob names (EN & JP)
-        loadingUI.LoadingProgressChange(1, 11, "Downloading Mob Data");
+        loadingUI.LoadingProgressChange(loadingStep++, loadingStepsTotal, "Downloading Mob Data");
         yield return UmaViewerDownload.DownloadText("https://www.tracenacademy.com/api/BasicMobDataInfo", txt =>
         {
             if (string.IsNullOrEmpty(txt)) return;
@@ -79,9 +83,17 @@ public class UmaViewerMain : MonoBehaviour
             }
         });
 
+        if (Config.Instance.WorkMode == WorkMode.Standalone)
+        {
+            var umaIcons = UmaCharaData.Select(item => AbList.TryGetValue($"chara/chr{item["id"]}/chr_icon_{item["id"]}", out UmaDatabaseEntry entry) ? entry : null).Where(entry => entry != null);
+            var mobIcons = MobCharaData.Select(item => AbList.TryGetValue($"mob/mob_chr_icon_{item["mob_id"]}_000001_01", out UmaDatabaseEntry entry) ? entry : null).Where(entry => entry != null);
+            var costumeIcons = CostumeList;
+            List<UmaDatabaseEntry> filesToDownload = umaIcons.Concat(mobIcons).Concat(costumeIcons).ToList();
+            yield return UmaViewerDownload.DownloadAssets(filesToDownload, UmaSceneController.instance.LoadingProgressChange);
+            filesToDownload.Clear();
+        }
 
-        var UmaCharaData = UmaDatabaseController.Instance.CharaData;
-        loadingUI.LoadingProgressChange(2, 11, "Loading Character Data");
+        loadingUI.LoadingProgressChange(loadingStep++, loadingStepsTotal, "Loading Character Data");
         yield return null;
         foreach (var item in UmaCharaData)
         {
@@ -99,8 +111,7 @@ public class UmaViewerMain : MonoBehaviour
             }
         }
 
-        var MobCharaData = UmaDatabaseController.Instance.MobCharaData;
-        loadingUI.LoadingProgressChange(3, 11, "Loading Mob Data");
+        loadingUI.LoadingProgressChange(loadingStep++, loadingStepsTotal, "Loading Mob Data");
         yield return null;
         foreach (var item in MobCharaData)
         {
@@ -120,7 +131,7 @@ public class UmaViewerMain : MonoBehaviour
             });
         }
 
-        loadingUI.LoadingProgressChange(4, 11, "Loading Costumes Data");
+        loadingUI.LoadingProgressChange(loadingStep++, loadingStepsTotal, "Loading Costumes Data");
         yield return null;
         foreach (var item in CostumeList)
         {
@@ -144,7 +155,7 @@ public class UmaViewerMain : MonoBehaviour
             }
         }
 
-        loadingUI.LoadingProgressChange(5, 11, "Loading Live Data");
+        loadingUI.LoadingProgressChange(loadingStep++, loadingStepsTotal, "Loading Live Data");
         yield return null;
         var asset = AbList["livesettings"];
         if (asset != null)
@@ -180,19 +191,19 @@ public class UmaViewerMain : MonoBehaviour
             }
         }
 
-        loadingUI.LoadingProgressChange(6, 11, "Loading UI");
+        loadingUI.LoadingProgressChange(loadingStep++, loadingStepsTotal, "Loading UI");
         yield return null;
         UI.LoadModelPanels();
-        loadingUI.LoadingProgressChange(7, 11, "Loading UI");
+        loadingUI.LoadingProgressChange(loadingStep++, loadingStepsTotal, "Loading UI");
         yield return null;
         UI.LoadMiniModelPanels();
-        loadingUI.LoadingProgressChange(8, 11, "Loading UI");
+        loadingUI.LoadingProgressChange(loadingStep++, loadingStepsTotal, "Loading UI");
         yield return null;
         UI.LoadPropPanel();
-        loadingUI.LoadingProgressChange(9, 11, "Loading UI");
+        loadingUI.LoadingProgressChange(loadingStep++, loadingStepsTotal, "Loading UI");
         yield return null;
         UI.LoadMapPanel();
-        loadingUI.LoadingProgressChange(10, 11, "Loading UI");
+        loadingUI.LoadingProgressChange(loadingStep++, loadingStepsTotal, "Loading UI");
         yield return null;
         UI.LoadLivePanels();
         loadingUI.LoadingProgressChange(-1, -1);

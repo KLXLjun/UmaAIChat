@@ -1,5 +1,7 @@
 using Gallop;
+#if !UNITY_ANDROID || UNITY_EDITOR
 using SFB;
+#endif
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,6 +12,7 @@ using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Networking.Types;
 using UnityEngine.UI;
 using static PageManager;
 using Debug = UnityEngine.Debug;
@@ -142,6 +145,7 @@ public class UmaViewerUI : MonoBehaviour
     [Header("Live")]
     public bool LiveTime = false;
     public bool isRecordVMD;
+    public bool isRequireStage = true;
     public Dropdown LiveRecoedToggle;
     public int LiveMode = 1;
 
@@ -152,7 +156,7 @@ public class UmaViewerUI : MonoBehaviour
     private void Awake()
     {
         Instance = this;
-        AudioPlayButton.onClick.AddListener(AudioPause);
+        AudioPlayButton.onClick.AddListener(PauseAudio);
         AudioSlider.onValueChanged.AddListener(AudioProgressChange);
         AnimationPlayButton.onClick.AddListener(AnimationPause);
         AnimationSlider.onValueChanged.AddListener(AnimationProgressChange);
@@ -169,6 +173,9 @@ public class UmaViewerUI : MonoBehaviour
         UmaAssetManager.OnLoadedBundleClear += LoadedAssetsClear;
         
         PoseManager.LoadLocalPoseFiles();
+#if UNITY_ANDROID && !UNITY_EDITOR
+        canvasScaler.referenceResolution = new Vector2(1280, 720);
+#endif
     }
 
     private void OnDestroy()
@@ -243,8 +250,11 @@ public class UmaViewerUI : MonoBehaviour
     public void LoadedAssetsClear()
     {
         LoadedAssetEntries.Clear();
-        LoadedAssetPageCtrl.ResetCtrl();
-        LoadedAssetPageCtrl.Initialize(LoadedAssetEntries.Values.ToList(), LoadedAssetScrollRect);
+        if (LoadedAssetPageCtrl)
+        {
+            LoadedAssetPageCtrl.ResetCtrl();
+            LoadedAssetPageCtrl.Initialize(LoadedAssetEntries.Values.ToList(), LoadedAssetScrollRect);
+        }
     }
 
     public void CopyAllLoadedAssetsPath()
@@ -555,7 +565,7 @@ public class UmaViewerUI : MonoBehaviour
 
         foreach (var live in Main.Lives.OrderBy(c => c.MusicId))
         {
-            createContainer(live, UmaContainerLivePrefab, LiveList, () => ShowLiveSelectPannel(live));
+            createContainer(live, UmaContainerLivePrefab, LiveList, () => ShowLiveSelectPanel(live));
             createContainer(live, UmaContainerLivePrefab, LiveSoundList, () => ListLiveSounds(live.MusicId));
         }
     }
@@ -627,9 +637,10 @@ public class UmaViewerUI : MonoBehaviour
         }
     }
 
-    void ShowLiveSelectPannel(LiveEntry entry)
+    void ShowLiveSelectPanel(LiveEntry entry)
     {
         LiveSelectPannel.SetActive(true);
+        Builder.loadLivePreviewSound(entry.MusicId);
         for (int i = LiveSelectList.content.childCount - 1; i >= 0; i--)
         {
             Destroy(LiveSelectList.content.GetChild(i).gameObject);
@@ -649,7 +660,7 @@ public class UmaViewerUI : MonoBehaviour
                     chara.SelectChara(this);
                     foreach (var t in LiveSelectList.content.GetComponentsInChildren<LiveCharacterSelect>())
                     {
-                        t.GetComponentInChildren<Text>().color = (t == chara ? Color.white : Color.black);
+                        t.GetComponentInChildren<Text>().color = (t == chara ? Color.green : Color.black);
                     }
                 });
             }
@@ -741,7 +752,9 @@ public class UmaViewerUI : MonoBehaviour
         foreach (var entry in Main.AbChara.Where(a => a.Name.Contains("/body/") && !a.Name.Contains("/clothes/") && a.Name.Contains(nameVar)))
         {
             string id = Path.GetFileName(entry.Name);
-            id = id.Split('_')[1].Substring(mini ? 4 : 3) + "_" + id.Split('_')[2] + "_" + id.Split('_')[3];
+            string[] split = id.Split('_');
+            if (split.Length < 4) continue; //prevents error for mini umas
+            id = split[1].Substring(mini ? 4 : 3) + "_" + split[2] + "_" + split[3];
             if (!costumes.Contains(id))
             {
                 costumes.Add(id);
@@ -1090,7 +1103,7 @@ public class UmaViewerUI : MonoBehaviour
         Builder.CurrentUMAContainer?.SetFaceOverrideData(isOn);
     }
 
-    public void AudioPause()
+    public void PauseAudio()
     {
         var sources = Builder.CurrentAudioSources;
         if (sources.Count > 0)
@@ -1115,15 +1128,25 @@ public class UmaViewerUI : MonoBehaviour
         }
     }
 
+    public void StopAudio()
+    {
+        var sources = Builder.CurrentAudioSources;
+        foreach (AudioSource source in sources)
+        {
+            source.Stop();
+        }
+    }
+
     public void AudioProgressChange(float val)
     {
         if (Builder.CurrentAudioSources.Count > 0)
         {
+            var time = Builder.CurrentAudioSources[0].clip.length * val;
             foreach (AudioSource source in Builder.CurrentAudioSources)
             {
                 if (source.clip)
                 {
-                    source.time = source.clip.length * val;
+                    source.time = Mathf.Clamp(time, 0, source.clip.length);
                 }
             }
         }
@@ -1378,6 +1401,7 @@ public class UmaViewerUI : MonoBehaviour
 
     public void ChangeDataPath()
     {
+        #if !UNITY_ANDROID || UNITY_EDITOR
         var path = StandaloneFileBrowser.OpenFolderPanel("Select Folder", Config.Instance.MainPath, false);
         if (path != null && path.Length > 0 && !string.IsNullOrEmpty(path[0]))
         {
@@ -1387,6 +1411,21 @@ public class UmaViewerUI : MonoBehaviour
                 Config.Instance.UpdateConfig();
             }
         }
+        #endif
+    }
+
+    public void OpenConfig()
+    {
+        #if !UNITY_ANDROID || UNITY_EDITOR
+        if (File.Exists(Config.configPath))
+        {
+            Process.Start(new ProcessStartInfo()
+            {
+                FileName = Config.configPath,
+                UseShellExecute = true
+            });
+        }
+        #endif
     }
 
     public void ChangeOutlineWidth(float val)
@@ -1396,8 +1435,11 @@ public class UmaViewerUI : MonoBehaviour
 
     public void SetLiveRecordMode(bool val) { isRecordVMD = val; }
 
+    public void SetLiveRequireStage(bool val) { isRequireStage = val; }
+
     public void ShowMessage(string msg, UIMessageType type)
     {
+        if (!MessageText) return;
         MessageText.text += type switch
         {
             UIMessageType.Error => string.Format("<color=red>{0}</color>\n", msg),
@@ -1412,6 +1454,7 @@ public class UmaViewerUI : MonoBehaviour
 
     public void ExportModel()
     {
+        #if !UNITY_ANDROID || UNITY_EDITOR
         var container = Builder.CurrentUMAContainer;
         if (container)
         {
@@ -1422,6 +1465,7 @@ public class UmaViewerUI : MonoBehaviour
                 ModelExporter.ExportModel(container, path);
             }
         }
+        #endif
     }
 
     public void ToggleVisible(GameObject go)

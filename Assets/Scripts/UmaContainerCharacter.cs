@@ -649,13 +649,7 @@ public class UmaContainerCharacter : UmaContainer
                                 tripleMap = $"tex_bdy{costumeIdShort}_00_0_{bust}_base";
                                 optionMap = $"tex_bdy{costumeIdShort}_00_0_{bust}_ctrl";
                                 break;
-                            case "0006":
-                                mainTex = $"tex_bdy{costumeIdLong}_{skin}_{bust}_{"00"}_diff";
-                                toonMap = $"tex_bdy{costumeIdLong}_{skin}_{bust}_{"00"}_shad_c";
-                                tripleMap = $"tex_bdy{costumeIdLong}_0_{bust}_00_base";
-                                optionMap = $"tex_bdy{costumeIdLong}_0_{bust}_00_ctrl";
-                                break;
-                            case "0009":
+                            case "0006": case "0009": case "0015":
                                 mainTex = $"tex_bdy{costumeIdLong}_{skin}_{bust}_{"00"}_diff";
                                 toonMap = $"tex_bdy{costumeIdLong}_{skin}_{bust}_{"00"}_shad_c";
                                 tripleMap = $"tex_bdy{costumeIdLong}_0_{bust}_00_base";
@@ -812,8 +806,11 @@ public class UmaContainerCharacter : UmaContainer
                        var tex = ab.LoadAsset<Texture>("tex_chr_tear00");
                        StaticTear_L = table["tearmesh_l"] as GameObject;
                        StaticTear_R = table["tearmesh_r"] as GameObject;
-                       StaticTear_L.GetComponent<Renderer>().material.mainTexture = tex;
-                       StaticTear_R.GetComponent<Renderer>().material.mainTexture = tex;
+                       if (StaticTear_L && StaticTear_R)
+                       {
+                            StaticTear_L.GetComponent<Renderer>().material.mainTexture = tex;
+                            StaticTear_R.GetComponent<Renderer>().material.mainTexture = tex;
+                       }
                     }
 
                     switch (m.shader.name)
@@ -882,7 +879,6 @@ public class UmaContainerCharacter : UmaContainer
                 {
                     m.SetTexture("_MainTex", textures.FirstOrDefault(t => t.name.Contains("_hair") && t.name.EndsWith("diff")));
                     m.SetTexture("_ToonMap", textures.FirstOrDefault(t => t.name.Contains("_hair") && t.name.EndsWith("shad_c")));
-                    m.SetTexture("_TripleMaskMap", textures.FirstOrDefault(t => t.name.Contains("_hair") && t.name.EndsWith("base")));
                     m.SetTexture("_OptionMaskMap", textures.FirstOrDefault(t => t.name.Contains("_hair") && t.name.EndsWith("ctrl")));
                     m.SetTexture("_MaskColorTex", textures.FirstOrDefault(t => t.name.Contains("_hair") && t.name.EndsWith("area")));
                     SetMaskColor(m, MobHeadColor, "hair", true);
@@ -890,6 +886,11 @@ public class UmaContainerCharacter : UmaContainer
                     {
                         var cutoff = CharaData["hair_cutoff"].ToString(); 
                         m.SetFloat("_Cutoff", int.Parse(cutoff) / 10000f); //Not entirely correct, but effective
+                        m.SetTexture("_TripleMaskMap", textures.FirstOrDefault(t => t.name.Contains("_hair") && t.name.EndsWith(CharaData["sex"].ToString() + "_base")));
+                    }
+                    else
+                    {
+                        m.SetTexture("_TripleMaskMap", textures.FirstOrDefault(t => t.name.Contains("_hair") && t.name.EndsWith("base")));
                     }
                 }
 
@@ -915,7 +916,7 @@ public class UmaContainerCharacter : UmaContainer
         var textures = TailTextures;
         foreach (Renderer r in Tail.GetComponentsInChildren<Renderer>())
         {
-            foreach (Material m in r.materials)
+            foreach (Material m in r.sharedMaterials)
             {
                 m.SetTexture("_MainTex", textures.FirstOrDefault(t => t.name.EndsWith("diff")));
                 m.SetTexture("_ToonMap", textures.FirstOrDefault(t => t.name.Contains("shad")));

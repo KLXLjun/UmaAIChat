@@ -62,6 +62,8 @@ namespace Gallop.Live
 
         public bool IsRecordVMD;
 
+        public bool RequireStage = true;
+
         public Transform MainCameraTransform => _mainCameraTransform;
 
         private Transform _mainCameraTransform;
@@ -97,9 +99,12 @@ namespace Gallop.Live
             {
                 _instance = this;
                 Debug.Log(string.Format(CUTT_PATH, live.MusicId));
-                Debug.Log(live.BackGroundId);
                 Builder.LoadAssetPath(string.Format(CUTT_PATH, live.MusicId), transform);
-                Builder.LoadAssetPath(string.Format(STAGE_PATH, live.BackGroundId), transform);
+                if (RequireStage)
+                {
+                    Debug.Log(live.BackGroundId);
+                    Builder.LoadAssetPath(string.Format(STAGE_PATH, live.BackGroundId), transform);
+                }
 
                 //Make CharacterObject
 
@@ -128,6 +133,7 @@ namespace Gallop.Live
 
                 //Get live parts info
                 UmaDatabaseEntry partAsset = UmaViewerMain.Instance.AbList[string.Format(LIVE_PART_PATH, live.MusicId)];
+                UmaViewerAudio.LastAudioPartIndex = -1;
 
                 Debug.Log(partAsset.Name);
 
@@ -352,7 +358,7 @@ namespace Gallop.Live
             _liveTimelineControl.AlterUpdate(_liveCurrentTime);
             if (!_soloMode)
             {
-                UmaViewerAudio.AlterUpdate(_liveCurrentTime, partInfo, liveVocal);
+                UmaViewerAudio.AlterUpdate(_liveCurrentTime, partInfo, liveVocal, sliderControl.is_Outed);
             }
         }
 
@@ -370,7 +376,11 @@ namespace Gallop.Live
 
                 if (_syncTime == false)
                 {
-                    if (liveMusic.sourceList[0].time > 0.01)
+                    if(liveMusic.sourceList.Count == 0)
+                    {
+                        _syncTime = true;
+                    }
+                    else if (liveMusic.sourceList[0].time > 0.01)
                     {
                         _liveCurrentTime = liveMusic.sourceList[0].time;
                         _syncTime = true;
@@ -538,6 +548,44 @@ namespace Gallop.Live
             });
 
             UnityCameraVMDRecorder.SaveLiveCameraVMD(live, ExitTime, frames);
+        }
+
+        public static List<UmaDatabaseEntry> GetLiveAllVoiceEntry(int songid, List<LiveCharacterSelect> characters)
+        {
+            List<UmaDatabaseEntry> entryList = new List <UmaDatabaseEntry>();
+            for (int i = 0; i < characters.Count; i++)
+            {
+                if (characters[i].CharaEntry.Name != "")
+                {
+                    var charaid = characters[i].CharaEntry.Id;
+
+                    var entry = UmaViewerMain.Instance.AbSounds.FirstOrDefault(a => a.Name.Contains(string.Format(VOCAL_PATH, songid, charaid)) && a.Name.EndsWith("awb"));
+                    if (entry == null)
+                    {
+                        List<UmaDatabaseEntry> entries = new List<UmaDatabaseEntry>();
+                        foreach (var random in UmaViewerMain.Instance.AbSounds.Where(a => (a.Name.Contains(string.Format(RANDOM_VOCAL_PATH, songid)) && a.Name.EndsWith("awb"))))
+                        {
+                            entries.Add(random);
+                        }
+                        if (entries.Count > 0)
+                        {
+                            entry = entries[UnityEngine.Random.Range(0, entries.Count - 1)];
+                        }
+                    }
+
+                    if (entry != null)
+                    {
+                        entryList.Add(entry);
+                    }
+                }
+            }
+
+            var bgEntry = UmaViewerMain.Instance.AbSounds.FirstOrDefault(a => a.Name.Contains(string.Format(SONG_PATH, songid)) && a.Name.EndsWith("awb"));
+            if (bgEntry != null)
+            {
+                entryList.Add(bgEntry);
+            }
+            return entryList;
         }
     }
 
