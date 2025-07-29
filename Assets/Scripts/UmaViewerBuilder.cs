@@ -19,6 +19,7 @@ public class UmaViewerBuilder : MonoBehaviour
     public static UmaViewerBuilder Instance;
     static UmaViewerMain Main => UmaViewerMain.Instance;
     static UmaViewerUI UI => UmaViewerUI.Instance;
+    static UISettingsModel ModelSettings => UmaViewerUI.Instance.ModelSettings;
 
     public List<AssetBundle> Loaded;
     public List<Shader> ShaderList = new List<Shader>();
@@ -31,6 +32,10 @@ public class UmaViewerBuilder : MonoBehaviour
 
     public List<AudioSource> CurrentAudioSources = new List<AudioSource>();
     public List<UmaLyricsData> CurrentLyrics = new List<UmaLyricsData>();
+
+    // Used for keeping track for exports
+    public List<UmaDatabaseEntry> CurrentLiveSoundAWB = new List<UmaDatabaseEntry>();
+    public int CurrentLiveSoundAWBIndex = -1;
 
     public AnimatorOverrideController OverrideController;
     public AnimatorOverrideController FaceOverrideController;
@@ -47,7 +52,7 @@ public class UmaViewerBuilder : MonoBehaviour
         Instance = this;
     }
 
-    public IEnumerator LoadUma(CharaEntry chara, string costumeId, bool mini)
+    public IEnumerator LoadUma(CharaEntry chara, string costumeId, bool mini, string haedCostumeId = "")
     {
         int id = chara.Id;
         var umaContainer = new GameObject($"Chara_{id}_{costumeId}").AddComponent<UmaContainerCharacter>();
@@ -63,7 +68,7 @@ public class UmaViewerBuilder : MonoBehaviour
             umaContainer.CharaData = UmaDatabaseController.ReadCharaData(chara);
             LoadMobUma(umaContainer, chara, costumeId, loadMotion: true);
         }
-        else if (UI.isHeadFix && CurrentHead != null && CurrentHead.chara.IsMob)
+        else if (ModelSettings.IsHeadFix && CurrentHead != null && CurrentHead.chara.IsMob)
         {
             umaContainer.CharaData = UmaDatabaseController.ReadCharaData(CurrentHead.chara);
             LoadMobUma(umaContainer, CurrentHead.chara, costumeId, chara.Id, true);
@@ -71,7 +76,7 @@ public class UmaViewerBuilder : MonoBehaviour
         else
         {
             umaContainer.CharaData = UmaDatabaseController.ReadCharaData(chara);
-            LoadNormalUma(umaContainer, chara, costumeId, true);
+            LoadNormalUma(umaContainer, chara, costumeId, true, haedCostumeId);
             OnNormalUmaModelLoadComplete?.Invoke(chara);
         }
 
@@ -97,7 +102,7 @@ public class UmaViewerBuilder : MonoBehaviour
                 }
                 else
                 {
-                    LoadNormalUma(umaContainer, characters[i].CharaEntry, characters[i].CostumeId);
+                    LoadNormalUma(umaContainer, characters[i].CharaEntry, characters[i].CostumeId, false, characters[i].HeadCostumeId);
                 }
 
                 Gallop.Live.Director.instance.CharaContainerScript.Add(umaContainer);
@@ -105,7 +110,7 @@ public class UmaViewerBuilder : MonoBehaviour
         }
     }
 
-    private void LoadNormalUma(UmaContainerCharacter umaContainer, CharaEntry chara, string costumeId, bool loadMotion = false)
+    private void LoadNormalUma(UmaContainerCharacter umaContainer, CharaEntry chara, string costumeId, bool loadMotion = false, string haedCostumeId = "")
     {
         int id = chara.Id;
         umaContainer.CharaEntry = chara;
@@ -120,11 +125,12 @@ public class UmaViewerBuilder : MonoBehaviour
         shape = charaData["shape"].ToString();
 
         UmaDatabaseEntry asset = null;
+
+        umaContainer.VarCostumeIdLong = costumeId;
         if (genericCostume)
         {
             costumeIdShort = costumeId.Remove(costumeId.LastIndexOf('_'));
             umaContainer.VarCostumeIdShort = costumeIdShort;
-            umaContainer.VarCostumeIdLong = costumeId;
             umaContainer.VarBust = bust;
             umaContainer.VarSkin = skin;
             umaContainer.VarSocks = socks;
@@ -212,7 +218,7 @@ public class UmaViewerBuilder : MonoBehaviour
         string head_costumeId;
         int tailId = Convert.ToInt32(charaData["tail_model_id"]);
 
-        if (UI.isHeadFix && CurrentHead != null)
+        if (ModelSettings.IsHeadFix && CurrentHead != null)
         {
             head_id = CurrentHead.id;
             head_costumeId = CurrentHead.costumeId;
@@ -221,12 +227,12 @@ public class UmaViewerBuilder : MonoBehaviour
         else
         {
             head_id = id;
-            head_costumeId = costumeId;
+            head_costumeId = string.IsNullOrEmpty(haedCostumeId) ? costumeId  : haedCostumeId;
 
             CurrentHead = new UmaHeadData
             {
                 id = id,
-                costumeId = costumeId,
+                costumeId = head_costumeId,
                 tailId = tailId,
                 chara = chara
             };
@@ -295,19 +301,19 @@ public class UmaViewerBuilder : MonoBehaviour
         }
 
         umaContainer.LoadPhysics();
-        umaContainer.SetDynamicBoneEnable(UI.DynamicBoneEnable);
+        umaContainer.SetDynamicBoneEnable(ModelSettings.DynamicBoneEnable);
         umaContainer.LoadFaceMorph(id, costumeId);
         umaContainer.TearControllers.ForEach(a => a.SetDir(a.CurrentDir));
         umaContainer.HeadBone = (GameObject)umaContainer.Body.GetComponent<AssetHolder>()._assetTable["head"];
         umaContainer.EyeHeight = umaContainer.Head.GetComponent<AssetHolder>()._assetTableValue["head_center_offset_y"];
         umaContainer.MergeModel();
         umaContainer.SetHeight(-1);
-        umaContainer.Initialize(!UI.isTPose);
+        umaContainer.Initialize(!ModelSettings.IsTPose);
 
         umaContainer.Position = umaContainer.transform.Find("Position");
         umaContainer.SetupBoneHandles();
 
-        if (!UI.isTPose && loadMotion)
+        if (!ModelSettings.IsTPose && loadMotion)
         {
             if (Main.AbList.TryGetValue($"3d/motion/event/body/chara/chr{id}_00/anm_eve_chr{id}_00_idle01_loop", out UmaDatabaseEntry entry))
             {
@@ -514,7 +520,7 @@ public class UmaViewerBuilder : MonoBehaviour
         }
 
         umaContainer.LoadPhysics(); //Need to load physics before loading FacialMorph
-        umaContainer.SetDynamicBoneEnable(UI.DynamicBoneEnable);
+        umaContainer.SetDynamicBoneEnable(ModelSettings.DynamicBoneEnable);
 
         //Load FacialMorph
         umaContainer.LoadFaceMorph(id, costumeId);
@@ -524,12 +530,12 @@ public class UmaViewerBuilder : MonoBehaviour
         umaContainer.EyeHeight = umaContainer.Head.GetComponent<AssetHolder>()._assetTableValue["head_center_offset_y"];
         umaContainer.MergeModel();
         umaContainer.SetHeight(-1);
-        umaContainer.Initialize(!UI.isTPose);
+        umaContainer.Initialize(!ModelSettings.IsTPose);
 
         umaContainer.Position = umaContainer.transform.Find("Position");
         umaContainer.SetupBoneHandles();
 
-        if (!UI.isTPose && loadMotion)
+        if (!ModelSettings.IsTPose && loadMotion)
         {
             if (Main.AbList.TryGetValue($"3d/motion/event/body/type00/anm_eve_type00_homestand{personality.PadLeft(2, '0')}_loop", out UmaDatabaseEntry entry))
             {
@@ -755,10 +761,13 @@ public class UmaViewerBuilder : MonoBehaviour
     //Use decrypt function
     public void LoadLiveSound(int songid, UmaDatabaseEntry SongAwb, bool needLyrics = true)
     {
+        CurrentLiveSoundAWBIndex = -1; // mix awb together
+        CurrentLiveSoundAWB.Clear();
         //load character voice
         if (SongAwb != null)
         {
             PlaySound(SongAwb);
+            CurrentLiveSoundAWB.Add(SongAwb);
         }
 
         //load BG
@@ -770,6 +779,7 @@ public class UmaViewerBuilder : MonoBehaviour
             if (BGclip.Count > 0)
             {
                 AddAudioSource(BGclip[0]);
+                CurrentLiveSoundAWB.Add(BGawb);
             }
         }
 
@@ -797,7 +807,7 @@ public class UmaViewerBuilder : MonoBehaviour
             var tmp = CurrentAudioSources[0];
             CurrentAudioSources.Clear();
             Destroy(tmp.gameObject);
-            UI.ResetAudioPlayer();
+            UI.AudioSettings.ResetPlayer();
         }
         if (subindex == -1)
         {
@@ -811,6 +821,13 @@ public class UmaViewerBuilder : MonoBehaviour
             AddAudioSource(LoadAudio(SongAwb)[subindex], volume, loop);
         }
 
+    }
+
+    public void SetLastAudio(UmaDatabaseEntry AudioAwb, int index)
+    {
+        CurrentLiveSoundAWB.Clear();
+        CurrentLiveSoundAWB.Add(AudioAwb);
+        CurrentLiveSoundAWBIndex = index;
     }
 
     private void AddAudioSource(AudioClip clip, float volume = 1, bool loop = false)
@@ -829,6 +846,27 @@ public class UmaViewerBuilder : MonoBehaviour
         source.volume = volume;
         source.loop = loop;
         source.Play();
+    }
+
+
+
+    public List<UmaWaveStream> LoadAudioStreams(UmaDatabaseEntry awb)
+    {
+        var streams = new List<UmaWaveStream>();
+        string awbPath = awb.FilePath;
+        if (!File.Exists(awbPath)) return streams;
+
+        FileStream awbFile = File.OpenRead(awbPath);
+        AwbReader awbReader = new AwbReader(awbFile);
+
+        foreach (Wave wave in awbReader.Waves)
+        {
+            var stream = new UmaWaveStream(awbReader, wave.WaveId);
+            streams.Add(stream);
+        }
+         
+
+       return streams;
     }
 
     public static List<AudioClip> LoadAudio(UmaDatabaseEntry awb)
@@ -996,11 +1034,11 @@ public class UmaViewerBuilder : MonoBehaviour
         if (CurrentUMAContainer != null)
         {
             //It seems that OnDestroy will executed after new model loaded, which cause new FacialPanels empty...
-            UmaViewerUI.Instance.currentFaceDrivenKeyTarget = null;
-            UmaViewerUI.Instance.LoadEmotionPanels(null);
-            UmaViewerUI.Instance.LoadFacialPanels(null);
-            if (UmaViewerUI.Instance.MaterialsList)
-                foreach (Transform t in UmaViewerUI.Instance.MaterialsList.content)
+            UI.currentFaceDrivenKeyTarget = null;
+            UI.LoadEmotionPanels(null);
+            UI.LoadFacialPanels(null);
+            if (UI.ModelSettings.MaterialsList)
+                foreach (Transform t in UI.ModelSettings.MaterialsList.content)
                 {
                     Destroy(t.gameObject);
                 }
