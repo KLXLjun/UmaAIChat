@@ -1,6 +1,9 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using Chat;
 using TMPro;
 using UnityEngine;
 
@@ -128,7 +131,9 @@ public class Main : MonoBehaviour
             var msg = json.Value<string>("Message");
             var act = json.Value<string>("Emotion");
             var translate = json.Value<string>("Translate");
-            VoicePlayer.PushTask(Utils.SplitStr(msg));
+            var list = Utils.SplitStr(msg);
+            var p = list.Select(variable => new Model.RequestStruct() { ID = NowChara.Id.ToString(), Text = variable, }).ToList();
+            VoicePlayer.PushTask(p);
 
             RequestField.text = "";
 

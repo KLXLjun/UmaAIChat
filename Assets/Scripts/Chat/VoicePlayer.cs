@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
+using Chat;
 using UnityEngine;
 
 public class VoicePlayer : MonoBehaviour
@@ -12,11 +13,11 @@ public class VoicePlayer : MonoBehaviour
     private static WebClient Client => WebClient.Instance;
 
     private AsyncThreadSafeQueue<AudioClip> _AudioClipQueue = new AsyncThreadSafeQueue<AudioClip>();
-    private AsyncThreadSafeQueue<string> _AudioProcessQueue = new AsyncThreadSafeQueue<string> ();
+    private AsyncThreadSafeQueue<Model.RequestStruct> _AudioProcessQueue = new AsyncThreadSafeQueue<Model.RequestStruct> ();
     private bool isProcess = false;
     private bool isPlaying = false;
 
-    public async void PushTask(List<string> msg)
+    public async void PushTask(List<Model.RequestStruct> msg)
     {
         await _AudioProcessQueue.ClearAndEnqueueRangeAsync(msg);
         await _AudioClipQueue.Clear();
@@ -54,13 +55,12 @@ public class VoicePlayer : MonoBehaviour
 
     IEnumerator PlayVoice(AudioClip audioClip, Action complete)
     {
-        audioSource.clip = audioClip;
-        audioSource.Play();
+        audioSource.PlayOneShot(audioClip);
         yield return new WaitForSeconds(audioClip.length);
         complete?.Invoke();
     }
 
-    async void Generate(string item)
+    async void Generate(Model.RequestStruct item)
     {
         isProcess = true;
         var audioRAWData = await Client.GenerateVoice(item);
