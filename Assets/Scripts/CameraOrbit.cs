@@ -40,6 +40,8 @@ public class CameraOrbit : MonoBehaviour
     void Update()
     {
         if (HandleManager.InteractionInProgress) return;
+        
+        if (Camera.main.orthographic) return;
 
         bool cameraModeChanged = CameraMode != CameraSettings.CameraMode;
         if (cameraModeChanged)

@@ -22,6 +22,7 @@ public class CameraController : MonoBehaviour
     private static UmaViewerBuilder Builder => UmaViewerBuilder.Instance;
     private static UmaViewerUI UI => UmaViewerUI.Instance;
     private static CameraOrbit CameraOrbit => CameraOrbit.instance;
+    private UISettingsCamera CameraSettings => UmaViewerUI.Instance.CameraSettings;
 
     private static GameObject charaObject;
     private static GameObject charaFace;
@@ -38,13 +39,19 @@ public class CameraController : MonoBehaviour
 
     public void ResetOrbitCameraValue()
     {
-        CameraOrbit.OrbitCamFovSlider.value = 40.0f;
-        CameraOrbit.OrbitCamZoomSlider.value = 3.0f;
-        CameraOrbit.OrbitCamZoomSpeedSlider.value = 0.2f;
-        CameraOrbit.OrbitCamTargetHeightSlider.value = 1.0f;
-        CameraOrbit.OrbitCamHeightSlider.value = 1.0f;
-        CameraOrbit.OrbitCamRotationSlider.value = 0.0f;
-        CameraOrbit.OrbitCamSpeedSlider.value = 0.5f;
+        // CameraSettings.OrbitCamFovSlider.value = 40.0f;
+        // CameraSettings.OrbitCamZoomSlider.value = 3.0f;
+        // CameraSettings.OrbitCamZoomSpeedSlider.value = 0.2f;
+        // CameraSettings.OrbitCamTargetHeightSlider.value = 1.0f;
+        // CameraSettings.OrbitCamHeightSlider.value = 1.0f;
+        // CameraSettings.OrbitCamRotationSlider.value = 0.0f;
+        // CameraSettings.OrbitCamSpeedSlider.value = 0.5f;
+
+        CameraSettings.FOV = 40.0f;
+        CameraSettings.CameraDistance.value = 3.0f;
+        CameraSettings.ZoomSpeedSlider.value = 0.2f;
+        CameraSettings.TargetHeightSlider.value = 1.0f;
+        CameraSettings.CameraRotation = 0.0f;
     }
 
     void Update()
@@ -95,8 +102,8 @@ public class CameraController : MonoBehaviour
                 }
             }
         }
-
-        if (!Camera.main.orthographic) return;
+        
+        if (CameraSettings.CameraMode != 0) return;
         if (Builder.CurrentUMAContainer == null) return;
 
         float mouseCenter = Input.GetAxis("Mouse ScrollWheel");

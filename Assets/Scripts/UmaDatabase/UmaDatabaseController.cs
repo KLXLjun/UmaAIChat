@@ -56,16 +56,18 @@ public class UmaDatabaseController
         {
             if(Config.Instance.WorkMode == WorkMode.Standalone)
             {
-                if(!File.Exists($@"{Config.Instance.MainPath}/meta_umaviewer")) throw new Exception();
+                if(!File.Exists($@"{Config.Instance.MainPath}/meta_umaviewer")) throw new Exception($"数据库未找到; \n 独立模式:{WorkMode.Standalone}\n数据库:{Config.Instance.MainPath}");
                 metaDb = new SqliteConnection($@"Data Source={Config.Instance.MainPath}/meta_umaviewer;");
                 masterDb = new SqliteConnection($@"Data Source={Config.Instance.MainPath}/master/master_umaviewer.mdb;");
             }
             else
             {
-                if (!File.Exists($@"{Config.Instance.MainPath}/meta")) throw new Exception();
+                if (!File.Exists($@"{Config.Instance.MainPath}/meta")) throw new Exception($"数据库未找到; \n 独立模式:{WorkMode.Standalone}\n数据库:{Config.Instance.MainPath}");
                 metaDb = new SqliteConnection($@"Data Source={Config.Instance.MainPath}/meta;");
                 masterDb = new SqliteConnection($@"Data Source={Config.Instance.MainPath}/master/master.mdb;");
             }
+            
+            Debug.Log($"数据库：{Config.Instance.MainPath}");
 
             metaDb.Open();
             MetaEntries = ReadMeta(metaDb);
@@ -81,14 +83,14 @@ public class UmaDatabaseController
         catch
         {
             CloseAllConnection();
-            var msg = $"Database not found at: {Config.Instance.MainPath}";
+            var msg = $"Database not found at: {Config.Instance.MainPath}\n没有在这个目录中找到meta数据库: {Config.Instance.MainPath}";
             if(Config.Instance.WorkMode == WorkMode.Standalone)
             {
-                msg += "\nPlease update the database in the settings panel";
+                msg += "\nPlease update the database in the settings panel\n请在 设置面板 中更新数据库。";
             }
             else
             {
-                msg += "\nPlease install the dmm game client";
+                msg += $"\nPlease install the dmm game client\n请安装 DMM 游戏客户端 或是 检查 {Config.Instance.MainPath} 路径下是否存在meta文件";
             }
             UmaViewerUI.Instance.ShowMessage(msg, UIMessageType.Error);
         }
